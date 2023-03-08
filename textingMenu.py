@@ -1,3 +1,8 @@
+"""
+Not yet done creating the function to print the users name. Passing checkbox or button. 
+Need to finish that by live deleting the user selected.
+"""
+
 import tkinter
 from tkinter import *
 from callNumber import *
@@ -117,6 +122,7 @@ def show_menu():
     sendText.place(x=halfWidth + 40, y= 0+ 100)
     deleteText.place(x=halfWidth + 40, y=halfHeight + 20)
 
+#hide the main menu
 def hide_menu():
     menuTitle.place_forget()
     putUserIn.place_forget()
@@ -216,6 +222,7 @@ def showDirectory():
 
         checkList = []
 
+        #printing the directory
         for x in readStatus:
             count += 1
 
@@ -284,7 +291,7 @@ def showDirectory():
             directoryTitle.place_forget()
             frame.place_forget()
             sendMessage.place_forget()
-            sendingMessage.place_forget()
+            #sendingMessage.place_forget()
             
             #deselect all of the checkboxes for next time
             for currentBox in intvar_dict.values():
@@ -301,7 +308,12 @@ def showDirectory():
         sendMessage = Button(box, text="Send", fg='red', height=3, width=6, command=sendTextDefinition)
         sendMessage.place(x=halfWidth + 30, y=450 - 100)
     
-def printUserNamesDirectory(checkboxOrButton):
+"""
+This function will print the names of the users in the directory. Will give user option to both 
+delete or send message to users. Will take in a variable that will tell function to either give the
+option to delte or the option to message a person. 
+"""
+def printUserNamesDirectory(checkbox_or_button):
     yLocation = 32
     count = 0
     printDirectory = readDirectory()
@@ -309,6 +321,30 @@ def printUserNamesDirectory(checkboxOrButton):
     # #check if it doesnt exist
     # if printDirectory == 1:
     #     #directory does not exist
+
+    #create the frame used to show users in directory and place it
+    deleteUserFrame = Frame(box, bg='white', height=300, width=410)
+    deleteUserFrame.place(x=20, y=30, anchor='nw') 
+
+    checkList = []
+
+    #function adds checked user to list that will be used to send messages later
+    def addList(p):
+        """
+        first check if the name is not in list already, as this is easiest way to 
+        get around checking and unchecking box
+        """
+        if p in checkList:
+            checkList.remove(p)
+        else:
+            checkList.append(p)
+
+    #function will delete the user and call printUserNameDirecoty to re print directory without delted user
+    def deleteAndReload(userToDelte):
+        deleteUserFromFile(userToDelte)
+
+        #reload the updated directory
+        #printUserNamesDirectory(checkbox_or_button)
 
     for x in printDirectory:
         count += 1
@@ -338,26 +374,50 @@ def printUserNamesDirectory(checkboxOrButton):
         testFrameLabel = Label(deleteUserFrame, text=userCompleteInfo, font=('Arial', 12), bg='white')
         testFrameLabel.place(x=0, y=0 + (yLocation * count))
 
-        #add buttons to delete users
-        deleteThisUserButton = Button(deleteUserFrame, text="Delete", width=5, height=1,
-                                    command=lambda current = x: eraseUser(current))
-        deleteThisUserButton.place(x=350, y=0 + (yLocation * count))
+        #print the delte button or the send message checkbox
+        if checkbox_or_button == "button":
+            #add buttons to delete users
+            deleteThisUserButton = Button(deleteUserFrame, text="Delete", width=5, height=1,
+                                        command=lambda current = x: deleteAndReload(current))
+            deleteThisUserButton.place(x=350, y=0 + (yLocation * count))
+        elif checkbox_or_button == "checkbox":
+            #create dictionary that will hold var of each checkbox, will be used to reset them at end
+            intvar_dict = {}
+            intvar_dict[count] = IntVar()
+
+            #each checkbox will stay attached to the x at the time they are created
+            checkButton = Checkbutton(deleteUserFrame, text="Message", onvalue=x.getFName(), 
+                                      variable=intvar_dict[count],command=lambda x = x:
+                                      addList(x))
+            checkButton.place(x=320, y=0 + (yLocation * count))
+
+    #definition to clear frame
+    def clearDirectoryFrame():
+        deleteUserFrame.place_forget()
+        donePrinting.place_forget()
+
+        if checkbox_or_button == "checkbox":
+            sendMessage.place_forget()
+            for currentBox in intvar_dict.values():
+                currentBox.set(0)
+        
+        show_menu()
+
+    if checkbox_or_button == "checkbox":
+        #this button that will send message to users with checkbox beside their name checked 
+        sendMessage = Button(box, text="Send", fg='red', height=3, width=6,) #command=sendTextDefinition)
+        sendMessage.place(x=halfWidth + 30, y=450 - 100)
+    
+    #done printing button will erase screen and go back to main menu
+    donePrinting = Button(box, text="Done", fg='red', width= 6, height= 3, command=clearDirectoryFrame)
+    donePrinting.place(x=halfWidth - 35, y= 450-100)
 
 
 def deleteUser():
-        #create and place the frame
-        #sentMessageFrame = Frame(box, bg='white', width=)
-        deleteUserFrame = Frame(box, bg='white', width=410, height=300)
-        deleteUserFrame.place(x=20, y=30, anchor='nw')
+        hide_menu()
 
-
-
-        #this will delete the user which button was clicked on
-        def eraseUser(desiredUser):
-            deleteUserFromFile(desiredUser)
-
-        
-        printDirectory()
+        #call the function to print the names already in directory, with a button to delete each user
+        printUserNamesDirectory("button")
 
 
 
