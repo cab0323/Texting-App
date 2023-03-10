@@ -1,23 +1,16 @@
-
+"""
+Done. This file contains the functions that directly interact with the file.
+Write and read from the file.
+"""
 
 import smtplib
 import os
-#imports for UI
+from email.message import EmailMessage #import used to send the text message
 
-def clicked():
-    print("Test!!")
-
-from email.message import EmailMessage
-
-
-# #--- program works, get UI above
-# #-- delete function not done yet
 
 directory = 'directory2.txt'
 
-
-#need to add getNumber and get email to person class
-#class to send back to gui
+#class used to describe a person. 
 class Person:
     #class method
     def __init__(self, firstName, lastName, phoneNumber):
@@ -25,6 +18,15 @@ class Person:
         self.lName = lastName
         self.phone = phoneNumber
         #self.email = email
+
+    #override function to compare two objects of Person class
+    def __eq__(self, other):
+        if not isinstance(other, Person):
+            return NotImplemented
+        
+        #return true if first and last name are equal
+        if self.fName == other.fName and self.lName == other.lName:
+            return True
 
     def printName(self):
         print("Name is: " + self.fName)
@@ -39,13 +41,18 @@ class Person:
         return self.phone
     
 
-#defining my fucntions to call after we get user input
+#put Persons info into the file
 def inputUser(person):
     with open(directory, 'a') as file:
         file.write(person.getFName() + " ")
         file.write(person.getLName() + " ")
         file.write(person.getPhone() + "\n")
 
+#function that sends the text to selected users/user
+"""
+left commented out since i dont want to send a message to soemone everytime i 
+runt the code to test it
+"""
 def sendTheText(listNames):
 
     """
@@ -94,7 +101,7 @@ def sendTheText(listNames):
             textFlag = 2
             return textFlag
 
-
+#function to read the directory
 def readDirectory():
     #will be returned if something is wrong
     errorFlag = 0 #nothing is wrong
@@ -148,85 +155,37 @@ def readDirectory():
 
     return people
 
-
-
-
-def deleteUserFromFile(person):
-    #get the name of user
-    print("What user do you want to delete?")
-    deleteFName = person.getFName()
-    deleteLName = person.getLName()
-
-    #test
-    print("FName: " + deleteFName)
-    print("LName: " + deleteLName)
-
-    #create list of users that wont be deleted
+#function that deletes the users selected
+def deleteUserFromFile(deleteList):
+    #create list of users that wont be deleted, and will be readded
     namesToReAdd = []
 
     #open file and read each line first
     with open(directory, 'r') as readFile:
+        #read the directory line by line
         for line in readFile:
+            #split the line into its parts[firstName, lastName, phoneNumber]
             userInfo = line.split()
-            print("First Names: " + userInfo[0])
-            #find user to delete
-            if not deleteFName == userInfo[0] and not deleteLName == userInfo[1]:
-                #add all names except this one
-                currentPerson = Person(userInfo[0], userInfo[1], userInfo[2])
-                namesToReAdd.append(currentPerson)
+
+            #create a person object from the info read from directory
+            currentPersonInDirectory = Person(userInfo[0],userInfo[1], userInfo[2])
+
+            #keep track of weather the current line read from directory will be readded to the file
+            reAddName = True
+
+            #iterate through list to see if user in list
+            for personInList in deleteList:
+                if currentPersonInDirectory == personInList:
+                    reAddName = False
+            
+            #if name is not in deleteList readd it
+            if reAddName:    
+                namesToReAdd.append(currentPersonInDirectory)
     
     with open(directory, 'w') as writeFile:
-        print("Names will be readded: ")
         #add the names back to the file
         for p in namesToReAdd:
             writeFile.write(p.getFName() + " ")
             writeFile.write(p.getLName() + " ")
             writeFile.write(p.getPhone() + "\n")
-
-
-# while True:
-#     #first get user input on what they want to do
-#     print("\n")
-#     print("Welcome to Call Number")
-#     print("Please read the following menu")
-#     print("1. Add person to directory")
-#     print("2. Send text")
-#     print("3. Read Directory")
-#     print("4. Delete User")
-#     print("5. Exit Program")
-#     userSelection = input("Make Selection: ")
-
-#     #check if user wants to quit program 
-#     if userSelection == '5':
-#         print("Thanks for using!")
-#         exit()
-    
-#     if not userSelection.isdigit():
-#         print("ENTER ONLY NUMERICAL INPUT")
-#         continue
-
-#     #get directory specification
-#     directory = input("Please specify which directory as well: ")
-    
-#     #modify input to desired type
-#     userSelection = int(userSelection)
-#     directory = directory + '.txt'
-
-#     #interpretate users input
-#     if userSelection == 1:
-#         #user wants to add new user
-#         inputUser()
-#     elif userSelection == 2:
-#         #user wants to send texts
-#         sendText()
-#     elif userSelection == 3:
-#         #user wants to read directory
-#         readDirectory()
-#     elif userSelection == 4:
-#         #user wants to delete user
-#         deleteUser()
-#     else:
-#         print("Please make valid selection")
-
-
 

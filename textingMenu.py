@@ -1,6 +1,7 @@
 """
-Not yet done creating the function to print the users name. Passing checkbox or button. 
-Need to finish that by live deleting the user selected.
+Done. This file contains the functions that create the gui.
+
+***might need to add button to set which directory to read.
 """
 
 import tkinter
@@ -46,8 +47,8 @@ lineNumber = Entry(box, width=4)
 
 
 #email
-askEmail = Label(box, text="Enter Email")
-userEmail = Entry(box, width=20)
+# askEmail = Label(box, text="Enter Email")
+# userEmail = Entry(box, width=20)
 
 errorMessage = Label(box, text="Make sure boxes with * besides them are not empty")
 
@@ -67,12 +68,12 @@ def getInput():
             newText = newText + "*"
         askLName.config(text=newText)
         key = 1 
-    if(userEmail.get() == ""):
-        newText = askEmail.cget('text')
-        if "*" not in newText:
-            newText = newText + "*"        
-        askEmail.config(text=newText)
-        key = 1
+    # if(userEmail.get() == ""):
+    #     newText = askEmail.cget('text')
+    #     if "*" not in newText:
+    #         newText = newText + "*"        
+    #     askEmail.config(text=newText)
+    #     key = 1
     if(areaCode.get() == "") or (prefix.get() == "") or (lineNumber.get() == ""):
         newText = askPhone.cget('text')
         if "*" not in newText:
@@ -96,7 +97,7 @@ def getInput():
         prefix.delete(0, 'end')
         lineNumber.delete(0, 'end')
 
-        userEmail.delete(0,'end')
+        # userEmail.delete(0,'end')
         errorMessage.place_forget()        
         hide_input_screen()
         show_menu()
@@ -150,8 +151,11 @@ def show_input_screen():
     slash.place(x=halfWidth  + 130, y=halfHeight - 86, anchor='ne')
     lineNumber.place(x=halfWidth + 160, y=halfHeight - 80, anchor='ne')
 
-    askEmail.place(x= halfWidth + 100, y=halfHeight, anchor='ne')
-    userEmail.place(x=halfWidth + 160, y=halfHeight + 20, anchor='ne')
+    #ask for the email of the users
+    # askEmail.place(x= halfWidth + 100, y=halfHeight, anchor='ne')
+    # userEmail.place(x=halfWidth + 160, y=halfHeight + 20, anchor='ne')
+
+
     doneButton.place(x=halfWidth, y=halfHeight + 100, anchor='center')
 
 def hide_input_screen():
@@ -170,12 +174,21 @@ def hide_input_screen():
     parenthesesRight.place_forget()
     slash.place_forget()
 
-    askEmail.place_forget()
-    userEmail.place_forget()
+    # askEmail.place_forget()
+    # userEmail.place_forget()
     doneButton.place_forget()
 
-def showDirectory():
+
+"""
+This function will print the names of the users in the directory. Will give user option to both 
+delete or send message to users. Will take in a variable that will tell function to either give the
+option to delte or the option to message a person. 
+"""
+def printUserNamesDirectory(send_or_delete):
+
+    #read the directory, number returned will say weather directory exist and is not empty
     readStatus = readDirectory()
+
     if(readStatus == 1):
         #the directory does not exist 
         hide_menu()
@@ -190,39 +203,46 @@ def showDirectory():
 
         errorButton = Button(box, text="OK!", command=deleteError, width=5, height=2)
         errorButton.place(x= halfWidth, y=halfHeight + 100, anchor='center')
+
     elif readStatus == 2:
-        #the directory is empty
-        hide_menu()
+            #the directory is empty
+            hide_menu()
 
-        showError = Label(box, text="Directory is Empty", font=25)
-        showError.place(x=halfWidth, y=halfHeight, anchor='center')
+            showError = Label(box, text="Directory is Empty", font=25)
+            showError.place(x=halfWidth, y=halfHeight, anchor='center')
 
-        def deleteError():
-            showError.place_forget()
-            errorButton.place_forget()
-            show_menu()
+            def deleteError():
+                showError.place_forget()
+                errorButton.place_forget()
+                show_menu()
 
-        errorButton = Button(box, text="Okay!", command=deleteError, width=5, height=3)
-        errorButton.place(x=halfWidth, y=halfHeight + 100, anchor='center')
+            errorButton = Button(box, text="Okay!", command=deleteError, width=5, height=3)
+            errorButton.place(x=halfWidth, y=halfHeight + 100, anchor='center')
+
     else:
-        #directory is not empty and ready to read 
-
-        hide_menu()
-
-        directoryTitle = Label(box, text="Directory", font= 8)
-        directoryTitle.place(x=halfWidth, y=0 +10, anchor='center')
-
-        #variables used when placing the labels of the users info on the frame
-        count = 0
-        yLocation = 30
 
         #create the frame used to show users in directory and place it
-        frame = Frame(box, bg='white', height=300, width=410)
-        frame.place(x=20, y=30, anchor='nw') 
+        deleteUserFrame = Frame(box, bg='white', height=300, width=410)
+        deleteUserFrame.place(x=20, y=30, anchor='nw') 
 
         checkList = []
 
-        #printing the directory
+        #function adds checked user to list that will be used to send messages/delete user later
+        def addList(p):
+            """
+            first check if the name is not in list already, as this is easiest way to 
+            get around checking and unchecking box
+            """
+            if p in checkList:
+                checkList.remove(p)
+            else:
+                checkList.append(p)
+        
+
+        yLocation = 32
+        count = 0
+        
+        #print the inventory
         for x in readStatus:
             count += 1
 
@@ -248,35 +268,78 @@ def showDirectory():
             userCompleteInfo = name + " " + directoryPhone
 
             #add name of users to the frame
-            testFrameLabel = Label(frame, text=userCompleteInfo, font=('Arial', 12), bg='white')
+            testFrameLabel = Label(deleteUserFrame, text=userCompleteInfo, font=('Arial', 12), bg='white')
             testFrameLabel.place(x=0, y=0 + (yLocation * count))
-
-            #function adds name of user whose name is cheched
-            def addList(p):
-                """
-                first check if the name is not in list already, as this is easiest way to 
-                get around checking and unchecking box
-                """
-                if p in checkList:
-                    checkList.remove(p)
-                else:
-                    checkList.append(p)
 
             #create dictionary that will hold var of each checkbox, will be used to reset them at end
             intvar_dict = {}
-            intvar_dict[count] = IntVar()
+            intvar_dict[count] = IntVar()            
 
-            #each checkbox will stay attached to the x at the time they are created
-            checkButton = Checkbutton(frame, text="Message", onvalue=x.getFName(), 
-                                      variable=intvar_dict[count],command=lambda x = x:
-                                      addList(x))
-            checkButton.place(x=320, y=0 + (yLocation * count))
+            #print the delete checkbox or the send message checkbox
+            if send_or_delete == "delete":
+                #add checkbox to delete users
+                deleteThisUserCheckbox = Checkbutton(deleteUserFrame, text="Delete", onvalue=x.getFName(), 
+                                        variable=intvar_dict[count],command=lambda x = x:
+                                        addList(x))
+                deleteThisUserCheckbox.place(x=320, y=0 + (yLocation * count))
+            elif send_or_delete == "send":
+                #each checkbox will stay attached to the x at the time they are created
+                sendTextCheckbox = Checkbutton(deleteUserFrame, text="Message", onvalue=x.getFName(), 
+                                        variable=intvar_dict[count],command=lambda x = x:
+                                        addList(x))
+                sendTextCheckbox.place(x=320, y=0 + (yLocation * count))
 
-        #send messages to users with checkbox checked
+        #definition to clear frame
+        def clearDirectoryFrame(show_or_not_menu):
+            deleteUserFrame.place_forget()
+            goHomeButton.place_forget()
+
+            if send_or_delete == "send":
+                sendMessage.place_forget()
+                for currentBox in intvar_dict.values():
+                    currentBox.set(0)
+            elif send_or_delete == "delete":
+                deleteUsersSelected.place_forget()
+                for currentBox in intvar_dict.values():
+                    currentBox.set(0)
+            
+            if show_or_not_menu == "show":
+                show_menu()
+
+        #delete the messages
+        def doneDeletingOrSending(sent_deleted):
+            if sent_deleted == "deleted":
+                deletingUserLabel.place_forget()
+                doneDeletingButton.place_forget()
+            elif sent_deleted == "sent":
+                sendingMessage.place_forget()
+                doneSendingButton.place_forget()
+            
+            show_menu()
+                
+
+        #delete the users selected
+        def deleteSelectedUsers():
+            clearDirectoryFrame("dont")
+            deleteUserFromFile(checkList)
+            #delete selected users
+
+            #show the that users are being delted
+            global deletingUserLabel
+            global doneDeletingButton
+            deletingUserLabel = Label(box, text="Deleting Users Selected", font=23)
+            deletingUserLabel.place(x=halfWidth, y=halfHeight, anchor='center')
+            doneDeletingButton = Button(box, text="Done", fg='red', height=3, width=6,
+                                        command=lambda:doneDeletingOrSending("deleted"))
+            doneDeletingButton.place(x=halfWidth, y= halfHeight + 50)
+
         def sendTextDefinition():
+            clearDirectoryFrame("dont")
+            #deleteUserFromFile(checkList)
             global sendingMessage
-            sendingMessage = Label(box, text="Message Output here!")
-            sendingMessage.place(x=10, y=450 - 100)
+            global doneSendingButton
+            sendingMessage = Label(box, text="Message Output here!", font=23)
+            sendingMessage.place(x=halfWidth, y=halfHeight, anchor='center')
             textOutcome = sendTheText(checkList)
             if textOutcome == 1:
                 sendingMessage.config(text="No users selected!")
@@ -285,140 +348,39 @@ def showDirectory():
             else:
                 sendingMessage.config(text="Message sent!")
 
-        #funnction to delete directory screen and go back to main menu
-        def deleteDirectory():
-            donePrinting.place_forget()
-            directoryTitle.place_forget()
-            frame.place_forget()
-            sendMessage.place_forget()
-            #sendingMessage.place_forget()
-            
-            #deselect all of the checkboxes for next time
-            for currentBox in intvar_dict.values():
-                currentBox.set(0)
+            doneSendingButton = Button(box, text="Done", width=6, height=3,
+                                       command=lambda:doneDeletingOrSending("sent"))
+            doneSendingButton.place(x=halfWidth, y=halfHeight + 50)
 
-            show_menu()
-            
+        #print button to delete users selected or button to send message to users selected
+        if send_or_delete == "send":
+            #this button that will send message to users with checkbox beside their name checked 
+            sendMessage = Button(box, text="Send", fg='red', height=3, width=6,
+                                 command=sendTextDefinition)
+            sendMessage.place(x=halfWidth + 30, y=450 - 100)
+        elif send_or_delete == "delete":
+            #this button that will delete the people checked
+            deleteUsersSelected = Button(box, text="Delete", fg='red', height=3, width=6, command=deleteSelectedUsers)
+            deleteUsersSelected.place(x=halfWidth + 30, y=450 - 100)
         
         #done printing button will erase screen and go back to main menu
-        donePrinting = Button(box, text="Done", fg='red', width= 6, height= 3, command=deleteDirectory)
-        donePrinting.place(x=halfWidth - 35, y= 450-100)
-
-        #this button that will send message to users with checkbox beside their name checked 
-        sendMessage = Button(box, text="Send", fg='red', height=3, width=6, command=sendTextDefinition)
-        sendMessage.place(x=halfWidth + 30, y=450 - 100)
-    
-"""
-This function will print the names of the users in the directory. Will give user option to both 
-delete or send message to users. Will take in a variable that will tell function to either give the
-option to delte or the option to message a person. 
-"""
-def printUserNamesDirectory(checkbox_or_button):
-    yLocation = 32
-    count = 0
-    printDirectory = readDirectory()
-
-    # #check if it doesnt exist
-    # if printDirectory == 1:
-    #     #directory does not exist
-
-    #create the frame used to show users in directory and place it
-    deleteUserFrame = Frame(box, bg='white', height=300, width=410)
-    deleteUserFrame.place(x=20, y=30, anchor='nw') 
-
-    checkList = []
-
-    #function adds checked user to list that will be used to send messages later
-    def addList(p):
-        """
-        first check if the name is not in list already, as this is easiest way to 
-        get around checking and unchecking box
-        """
-        if p in checkList:
-            checkList.remove(p)
-        else:
-            checkList.append(p)
-
-    #function will delete the user and call printUserNameDirecoty to re print directory without delted user
-    def deleteAndReload(userToDelte):
-        deleteUserFromFile(userToDelte)
-
-        #reload the updated directory
-        #printUserNamesDirectory(checkbox_or_button)
-
-    for x in printDirectory:
-        count += 1
-
-        firstName = x.getFName()
-        lastName = x.getLName()
-        directoryPhone = x.getPhone()
-
-        name = str(count)+ "." + firstName + " " + lastName
-
-        #separate phoneNumber into its 3 parts
-        phoneAreaCode = directoryPhone[:3]
-        phoneMiddle = directoryPhone[3:6]
-        phoneLast = directoryPhone[-4:]
-
-        #format the parts of the phone number to make more readable
-        phoneAreaCode = "(" + phoneAreaCode + ")"
-        phoneMiddle = "-" + phoneMiddle + "-"
-
-        #put number together to print readibly
-        directoryPhone = phoneAreaCode + phoneMiddle + phoneLast
-
-        #put the info together to print
-        userCompleteInfo = name + " " + directoryPhone
-
-        #add name of users to the frame
-        testFrameLabel = Label(deleteUserFrame, text=userCompleteInfo, font=('Arial', 12), bg='white')
-        testFrameLabel.place(x=0, y=0 + (yLocation * count))
-
-        #print the delte button or the send message checkbox
-        if checkbox_or_button == "button":
-            #add buttons to delete users
-            deleteThisUserButton = Button(deleteUserFrame, text="Delete", width=5, height=1,
-                                        command=lambda current = x: deleteAndReload(current))
-            deleteThisUserButton.place(x=350, y=0 + (yLocation * count))
-        elif checkbox_or_button == "checkbox":
-            #create dictionary that will hold var of each checkbox, will be used to reset them at end
-            intvar_dict = {}
-            intvar_dict[count] = IntVar()
-
-            #each checkbox will stay attached to the x at the time they are created
-            checkButton = Checkbutton(deleteUserFrame, text="Message", onvalue=x.getFName(), 
-                                      variable=intvar_dict[count],command=lambda x = x:
-                                      addList(x))
-            checkButton.place(x=320, y=0 + (yLocation * count))
-
-    #definition to clear frame
-    def clearDirectoryFrame():
-        deleteUserFrame.place_forget()
-        donePrinting.place_forget()
-
-        if checkbox_or_button == "checkbox":
-            sendMessage.place_forget()
-            for currentBox in intvar_dict.values():
-                currentBox.set(0)
-        
-        show_menu()
-
-    if checkbox_or_button == "checkbox":
-        #this button that will send message to users with checkbox beside their name checked 
-        sendMessage = Button(box, text="Send", fg='red', height=3, width=6,) #command=sendTextDefinition)
-        sendMessage.place(x=halfWidth + 30, y=450 - 100)
-    
-    #done printing button will erase screen and go back to main menu
-    donePrinting = Button(box, text="Done", fg='red', width= 6, height= 3, command=clearDirectoryFrame)
-    donePrinting.place(x=halfWidth - 35, y= 450-100)
+        goHomeButton = Button(box, text="Go Home", fg='red', width= 8, height= 3, 
+                              command=lambda:clearDirectoryFrame("show"))
+        goHomeButton.place(x=halfWidth - 80, y= 450-100)
 
 
-def deleteUser():
+
+def hideMenuCallDirectory(to_delete_send):
         hide_menu()
 
-        #call the function to print the names already in directory, with a button to delete each user
-        printUserNamesDirectory("button")
-
+        if to_delete_send == "delete":
+            #call the function to print the names already in directory, with a button to delete each user
+            printUserNamesDirectory("delete")
+        elif to_delete_send == "send":
+            printUserNamesDirectory("send")
+        else:
+            #just print the directory without deleting or sending
+            printUserNamesDirectory("neither")
 
 
 #welcome text 
@@ -436,13 +398,16 @@ menuTitle = Label(box, text="Menu", font=10)
 putUserIn = Button(box, text="Input Person", fg='red', width=12, height=3, font=5, command=show_input_screen)
 
 #option 2: read directory
-showDirectoryButton = Button(box, text="Read Directory", fg='red', width= 12, height=3, font=5, command=showDirectory)
+showDirectoryButton = Button(box, text="Read Directory", fg='red', width= 12, height=3, font=5, 
+                             command=lambda:hideMenuCallDirectory("neither"))
 
 #option 3:send text
-sendText = Button(box, text="Send Text", fg='red', width=12, height= 3, font=5, command=showDirectory)
+sendText = Button(box, text="Send Text", fg='red', width=12, height= 3, font=5, 
+                  command=lambda:hideMenuCallDirectory("send"))
 
-#option 4:delete user **not done yet
-deleteText = Button(box, text="Delete User", fg='red', width=12, height=3, font=5, command=deleteUser)
+#option 4:delete user
+deleteText = Button(box, text="Delete User", fg='red', width=12, height=3, font=5, 
+                    command=lambda:hideMenuCallDirectory("delete"))
 
 
 box.mainloop()
