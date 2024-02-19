@@ -10,6 +10,13 @@ from email.message import EmailMessage #import used to send the text message
 
 directory = 'directory2.txt'
 
+#the array of carrier emails
+carrier_emails = []
+carrier_emails.append('@text.att.net')
+carrier_emails.append('@vtext.com')
+carrier_emails.append('@tmomail.net')
+
+
 #class used to describe a person. 
 class Person:
     #class method
@@ -76,30 +83,45 @@ def sendTheText(listNames):
         print("Recipient Address: " + recipientEmail + "\n")
         # userConfirm = input("Send message? (Y/N): ")
 
-        try:
-            # msg = EmailMessage()
-            # msg.set_content('Dear ' + recipient + ', This is a test message.')
+        #try sending to each carrier email until it gets the right one
+        while True:
+            #set the count to keep track of which carrier to send to 
+            i = 0
+            recipientEmail = person.getPhone() + carrier_emails[i]
+            print("email to send to: " + recipientEmail)
 
+            try:
+                msg = EmailMessage()
+                msg.set_content('Dear ' + recipient + ', This is a test message.')
 
-            # msg['Subject'] = 'Testing'
-            # msg['From'] = 'cabrerachris.9873@yahoo.com'
-            # msg['To'] =   recipientEmail
+                msg['Subject'] = 'Testing'
+                msg['From'] = 'cabrerachris.9873@yahoo.com'
+                msg['To'] =   recipientEmail
 
-            # s = smtplib.SMTP("smtp.mail.yahoo.com", 587)
-            # #login in to server
-            # s.starttls()
-            # s.login('cabrerachris.9873@yahoo.com', 'blfvjxiknjacgbns')
+                # s = smtplib.SMTP("smtp.mail.yahoo.com", 587)
+                # #login in to server
+                # s.starttls()
+                # s.login('cabrerachris.9873@yahoo.com', 'blfvjxiknjacgbns')
 
-            # #finally send message
-            # print("Sending Message")
-            # s.send_message(msg)
-            # print("Message SENT")
-            # s.quit()
-            print("Messages sent to: " + recipient)
-        except smtplib.SMPTPException:
-            print("Message Not sent")
-            textFlag = 2
-            return textFlag
+                # #finally send message
+                # print("Sending Message")
+                # s.send_message(msg)
+                # print("Message SENT")
+                # s.quit()
+                # print("Messages sent to: " + recipient)
+                # break
+
+            except smtplib.SMPTPException:
+                print("Message Not sent")
+                #message not sent, try again only if it's not the last email carrier 
+                if i >= len(carrier_emails):
+                    print("None of the carriers worked")
+                    textFlag = 2
+                    return textFlag
+                    break
+                #else try again
+                i += 1
+            
 
 #function to read the directory
 def readDirectory():
